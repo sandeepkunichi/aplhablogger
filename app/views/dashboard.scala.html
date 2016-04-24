@@ -1,81 +1,99 @@
-<!DOCTYPE html>
+@(form: Form[DashboardController.BlogForm], blogList: List[Blog])
 <html xmlns="http://w3.org/1999/xhtml">
-<head runat="server">
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-</head>
-<body>
-<div id="wrap">
-    <div id="main">
-        <header>
-            <div class="container">
-                <p>
-                    <a href="http://localhost/cloudsimba" target="_blank"><img id="headerlogo" src="images/logo.png" /> <span id="logotxt"> &nbsp; CloudSimba </span> </a> <span class="pull-right"> Contact: <b> 1 844 66 SIMBA (74622) </b> </span>
-                </p>
+    <head runat="server">
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    </head>
+    <body>
+        <!--
+        <div id="wrap">
+            <div id="main">
+                <div class="container">
+                    <p id="f20" class="center"> AlphaBlogger </p>
+                    <div class="row">
+                        <form enctype="multipart/form-data">
+                            <input name="picture" type="file" multiple />
+                            <input id="upload-picture" class="btn green pull-right" type="button" value="Upload" />
+                        </form>
+                        <progress></progress>
+                        <div id="file-list" class="connectpanelmain"></div>
+                    </div>
+                    <br />
+                </div>
             </div>
-        </header>
-        <br /><br /><br /><br />
-        <div class="container">
-            <p id="f20" class="center"> FileSimba </p>
-            <div class="row">
-                <form enctype="multipart/form-data">
-                    <input name="picture" type="file" multiple />
-                    <input class="btn green pull-right" type="button" value="Upload" />
-                </form>
-                <progress></progress>
-                <div id="file-list" class="connectpanelmain"></div>
-            </div>
-            <br />
         </div>
-    </div>
-</div>
-</body>
+        -->
+        <a href="/logout">LOGOUT</a>
+        @helper.form(routes.DashboardController.createBlog) {
+            <h1>Your first blog</h1>
+            @if(form.hasGlobalErrors) {
+                <p class="error">
+                    @form.globalError.message
+                </p>
+            }
+            <p>
+                <input type="text" name="title" placeholder="Title">
+            </p>
+            <p>
+                <textarea name="content"></textarea>
+            </p>
+            <p>
+                <input type="submit" value="CREATE"/>
+            </p>
+        }
+        @for(blog <- blogList) {
+            <p>@blog.title</p>
+            <p>@blog.content</p>
+            <input type="button" value="Delete" onclick="deleteBlog(@blog.id)"/>
+        }
+    </body>
     <script>
+        $('#upload-picture').click(function(){
+            var formData = new FormData($('form')[0]);
+            $.ajax({
+                url: '/picture',
+                type: 'POST',
+                xhr: function() {
+                    var myXhr = $.ajaxSettings.xhr();
+                    if(myXhr.upload) {
+                        myXhr.upload.addEventListener('progress',progressHandlingFunction, false);
+                    }
+                    return myXhr;
+                },
+                success: completeHandler,
+                error: errorHandler,
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+        });
 
-			$(document).ready(function(){
-				getFiles();
-			});
+        function errorHandler(){
+            alert("Error");
+        }
 
-			$(':file').change(function(){
-				var file = this.files[0];
-				var name = file.name;
-				var size = file.size;
-				var type = file.type;
-			});
+        function progressHandlingFunction(e){
+            if(e.lengthComputable){
+                $('progress').attr({value:e.loaded,max:e.total});
+            }
+        }
 
-			$(':button').click(function(){
-				var formData = new FormData($('form')[0]);
-				$.ajax({
-					url: '/picture',
-					type: 'POST',
-					xhr: function() {
-						var myXhr = $.ajaxSettings.xhr();
-						if(myXhr.upload) {
-							myXhr.upload.addEventListener('progress',progressHandlingFunction, false);
-						}
-						return myXhr;
-					},
-					success: completeHandler,
-					error: errorHandler,
-					data: formData,
-					cache: false,
-					contentType: false,
-					processData: false
-				});
-			});
+        function completeHandler(){
 
-			function completeHandler(){
-				getFiles();
-			}
+        }
 
-			function errorHandler(){
-				alert("Error");
-			}
-
-			function progressHandlingFunction(e){
-				if(e.lengthComputable){
-					$('progress').attr({value:e.loaded,max:e.total});
-				}
-			}
-
-		</script>
+        function deleteBlog(id){
+            $.ajax({
+                url: '/dashboard/'+id,
+                type: 'DELETE',
+                success: function(){
+                    window.location.reload();
+                },
+                error: errorHandler,
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+        }
+    </script>
 </html>

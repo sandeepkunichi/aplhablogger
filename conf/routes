@@ -12,9 +12,13 @@ GET     /dashboard                  controllers.DashboardController.index()
 
 GET     /users                      controllers.Application.listUsers()
 GET     /login                      controllers.Application.login()
+GET     /logout                     controllers.Application.logout()
 POST    /login                      controllers.Application.authenticate()
 
 GET     /signup                     controllers.Application.signup()
 POST    /signup                     controllers.Application.createUser()
 
 POST    /picture                    controllers.DashboardController.uploadPicture()
+
+POST    /dashboard                  controllers.DashboardController.createBlog()
+DELETE  /dashboard/:id              controllers.DashboardController.deleteBlog(id:String)

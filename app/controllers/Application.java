@@ -9,7 +9,6 @@ import javax.inject.Inject;
 import java.io.IOException;
 import views.html.*;
 
-
 /**
  * This controller contains all the actions to handle HTTP requests
  * to access the User table of the database
@@ -18,6 +17,7 @@ public class Application extends Controller {
 
     @Inject
     private FormFactory formFactory;
+
     public Result index() throws IOException {
         return ok("");
     }
@@ -42,6 +42,12 @@ public class Application extends Controller {
     public Result login() throws IOException {
         return ok(login.render(formFactory.form(Login.class)));
     }
+
+    public Result logout(){
+        session().clear();
+        return redirect("/login");
+    }
+
 
     public Result signup() throws IOException {
         return ok(signup.render(formFactory.form(Signup.class)));
